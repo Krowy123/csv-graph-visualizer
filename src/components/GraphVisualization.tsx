@@ -14,7 +14,7 @@ import { Line } from 'react-chartjs-2';
 import 'chartjs-adapter-date-fns';
 import type { CSVData, DateRange, ColumnInfo } from '../types';
 import { isDateInRange } from '../utils/dateUtils';
-import { parseDate } from '../utils/csvParser';
+import { parseDate, parseEuropeanNumber } from '../utils/csvParser';
 import { Download } from 'lucide-react';
 
 ChartJS.register(
@@ -76,7 +76,7 @@ export const GraphVisualization: React.FC<GraphVisualizationProps> = ({
     const datasets = selectedYColumns.map((columnName, index) => {
       const data = sortedRows.map(row => {
         const xValue = parseDate(row[selectedXColumn]);
-        const yValue = parseFloat(row[columnName]);
+        const yValue = parseEuropeanNumber(row[columnName]);
         
         return {
           x: xValue,
@@ -105,11 +105,41 @@ export const GraphVisualization: React.FC<GraphVisualizationProps> = ({
     plugins: {
       legend: {
         position: 'top' as const,
+        labels: {
+          boxWidth: 12,
+          padding: 15,
+          usePointStyle: true,
+        }
       },
       title: {
         display: true,
         text: `${selectedYColumns.join(', ')} over ${selectedXColumn}`,
+        font: {
+          size: 16,
+          weight: 'bold'
+        },
+        padding: 20
       },
+      tooltip: {
+        mode: 'index' as const,
+        intersect: false,
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        titleColor: 'white',
+        bodyColor: 'white',
+        cornerRadius: 6,
+        displayColors: true,
+        callbacks: {
+          label: function(context: any) {
+            const label = context.dataset.label || '';
+            const value = typeof context.parsed.y === 'number' ? 
+              context.parsed.y.toLocaleString(undefined, { 
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 10 
+              }) : context.parsed.y;
+            return `${label}: ${value}`;
+          }
+        }
+      }
     },
     scales: {
       x: {
@@ -119,24 +149,75 @@ export const GraphVisualization: React.FC<GraphVisualizationProps> = ({
             day: 'MMM dd',
             month: 'MMM yyyy',
             year: 'yyyy'
-          }
+          },
+          tooltipFormat: 'MMM dd, yyyy'
         },
         title: {
           display: true,
-          text: selectedXColumn
+          text: selectedXColumn,
+          font: {
+            size: 14,
+            weight: 'bold'
+          }
+        },
+        ticks: {
+          maxTicksLimit: 8,
+          maxRotation: 45,
+          minRotation: 0
+        },
+        grid: {
+          display: true,
+          color: 'rgba(0, 0, 0, 0.1)'
         }
       },
       y: {
         title: {
           display: true,
-          text: selectedYColumns.length === 1 ? selectedYColumns[0] : 'Values'
-        }
+          text: selectedYColumns.length === 1 ? selectedYColumns[0] : 'Values',
+          font: {
+            size: 14,
+            weight: 'bold'
+          }
+        },
+        ticks: {
+          stepSize: undefined,
+          precision: undefined,
+          callback: function(value: any) {
+            if (typeof value === 'number') {
+              // Remove trailing zeros but keep significant decimals
+              const formatted = value.toLocaleString(undefined, { 
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 10,
+                useGrouping: true
+              });
+              return formatted;
+            }
+            return value;
+          }
+        },
+        grid: {
+          display: true,
+          color: 'rgba(0, 0, 0, 0.1)'
+        },
+        // Prevent Chart.js from rounding values
+        beginAtZero: false,
+        grace: '5%'
       }
     },
     interaction: {
       intersect: false,
       mode: 'index' as const,
     },
+    elements: {
+      point: {
+        radius: 3,
+        hoverRadius: 5,
+        hitRadius: 10
+      },
+      line: {
+        tension: 0.2
+      }
+    }
   }), [selectedXColumn, selectedYColumns]);
 
   const downloadChart = () => {
@@ -183,7 +264,7 @@ export const GraphVisualization: React.FC<GraphVisualizationProps> = ({
         </button>
       </div>
       
-      <div className="h-96">
+      <div className="h-[500px] w-full">
         <Line data={chartData} options={options} />
       </div>
 

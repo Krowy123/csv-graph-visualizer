@@ -1,12 +1,26 @@
 import Papa from 'papaparse';
 import type { CSVData, ColumnInfo } from '../types';
 
+// Parse European number format (comma as decimal separator)
+export const parseEuropeanNumber = (value: string): number => {
+  if (!value || typeof value !== 'string') return NaN;
+  
+  const str = value.toString().trim();
+  if (!str) return NaN;
+  
+  // Replace comma with dot for decimal separator
+  const normalizedStr = str.replace(',', '.');
+  
+  return parseFloat(normalizedStr);
+};
+
 export const parseCSV = (file: File): Promise<CSVData> => {
   return new Promise((resolve, reject) => {
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
       dynamicTyping: false, // Keep as strings for better control
+      delimiter: ';', // European CSV format uses semicolon
       complete: (result: Papa.ParseResult<Record<string, any>>) => {
         if (result.errors.length > 0) {
           reject(new Error(`CSV parsing error: ${result.errors[0].message}`));
@@ -44,7 +58,7 @@ export const analyzeColumns = (csvData: CSVData): ColumnInfo[] => {
       return {
         name: header,
         type: 'number',
-        values: values.map(val => parseFloat(val.toString())).filter(num => !isNaN(num))
+        values: values.map(val => parseEuropeanNumber(val.toString())).filter(num => !isNaN(num))
       };
     }
     
@@ -99,9 +113,9 @@ const isNumericColumn = (values: any[]): boolean => {
     const str = sample.toString().trim();
     if (!str) continue;
     
-    // Check if it's purely numeric (no date separators)
-    if (!str.includes('-') && !str.includes('/') && !str.includes('.') || /^\d+\.\d+$/.test(str)) {
-      const num = parseFloat(str);
+    // Check if it's purely numeric (no date separators like - or /)
+    if (!str.includes('-') && !str.includes('/')) {
+      const num = parseEuropeanNumber(str);
       if (!isNaN(num) && isFinite(num)) {
         numericCount++;
       }
@@ -114,19 +128,44 @@ const isNumericColumn = (values: any[]): boolean => {
 export const parseDate = (value: any): Date | null => {
   if (!value) return null;
   
-  // Try different date formats
+  const dateStr = value.toString().trim();
+  
+  // Handle European format: DD.MM.YYYY HH:MM or DD.MM.YYYY
+  const europeanWithTime = /^(\d{1,2})\.(\d{1,2})\.(\d{4})\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/;
+  const europeanDateOnly = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/;
+  
+  let match = dateStr.match(europeanWithTime);
+  if (match) {
+    const day = parseInt(match[1], 10);
+    const month = parseInt(match[2], 10) - 1; // Month is 0-indexed
+    const year = parseInt(match[3], 10);
+    const hour = parseInt(match[4], 10);
+    const minute = parseInt(match[5], 10);
+    const second = match[6] ? parseInt(match[6], 10) : 0;
+    
+    const date = new Date(year, month, day, hour, minute, second);
+    return isNaN(date.getTime()) ? null : date;
+  }
+  
+  match = dateStr.match(europeanDateOnly);
+  if (match) {
+    const day = parseInt(match[1], 10);
+    const month = parseInt(match[2], 10) - 1; // Month is 0-indexed
+    const year = parseInt(match[3], 10);
+    
+    const date = new Date(year, month, day);
+    return isNaN(date.getTime()) ? null : date;
+  }
+  
+  // Try other formats
   const formats = [
     // ISO format
     /^\d{4}-\d{2}-\d{2}$/,
     // US format
     /^\d{1,2}\/\d{1,2}\/\d{4}$/,
-    // European format
-    /^\d{1,2}\.\d{1,2}\.\d{4}$/,
     // With time
     /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}/
   ];
-  
-  const dateStr = value.toString().trim();
   
   // Check if it matches any known format
   const matchesFormat = formats.some(format => format.test(dateStr));
