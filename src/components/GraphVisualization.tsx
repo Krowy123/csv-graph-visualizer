@@ -99,6 +99,34 @@ export const GraphVisualization: React.FC<GraphVisualizationProps> = ({
     };
   }, [csvData, columns, selectedXColumn, selectedYColumns, dateRange]);
 
+  // Custom crosshair plugin
+  const crosshairPlugin = useMemo(() => ({
+    id: 'crosshair',
+    afterDraw: (chart: any) => {
+      if (chart.tooltip?._active?.length) {
+        const activePoint = chart.tooltip._active[0];
+        const ctx = chart.ctx;
+        const x = activePoint.element.x;
+        const topY = chart.scales.y.top;
+        const bottomY = chart.scales.y.bottom;
+
+        // Save the current canvas state
+        ctx.save();
+        
+        // Draw the vertical crosshair line
+        ctx.beginPath();
+        ctx.moveTo(x, topY);
+        ctx.lineTo(x, bottomY);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.7)'; // Black with 70% opacity
+        ctx.stroke();
+        
+        // Restore the canvas state
+        ctx.restore();
+      }
+    }
+  }), []);
+
   const options = useMemo(() => ({
     responsive: true,
     maintainAspectRatio: false,
@@ -265,7 +293,7 @@ export const GraphVisualization: React.FC<GraphVisualizationProps> = ({
       </div>
       
       <div className="h-[500px] w-full">
-        <Line data={chartData} options={options} />
+        <Line data={chartData} options={options} plugins={[crosshairPlugin]} />
       </div>
 
       <div className="mt-4 p-3 bg-gray-50 rounded-md">
