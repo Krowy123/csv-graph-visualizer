@@ -6,12 +6,15 @@ A modern web application for uploading CSV files and creating interactive line c
 
 - **📁 Drag & Drop Upload**: Easy CSV file upload with drag-and-drop interface
 - **🔍 Smart Column Detection**: Automatically detects date, numeric, and text columns
-- **📊 Interactive Charts**: Create beautiful line charts with Chart.js
-- **📅 Date Range Filtering**: Filter data by custom date ranges
+- **📊 Interactive Charts**: Create beautiful line charts with Chart.js and crosshair cursor
+- **🎯 Precision Crosshair**: Black vertical line follows mouse cursor for precise data reading
+- **📅 Date Range Filtering**: Filter data by custom date ranges with intuitive controls
 - **📈 Multiple Data Series**: Plot multiple numeric columns on the same chart
+- **🌍 European CSV Support**: Full support for semicolon separators and comma decimals
 - **💾 Export Charts**: Download charts as high-quality PNG images
 - **📱 Responsive Design**: Works on desktop, tablet, and mobile devices
 - **⚡ Real-time Updates**: Charts update instantly as you change selections
+- **📊 Enhanced Precision**: Display exact decimal values without rounding
 
 ## 🚀 Quick Start
 
@@ -24,8 +27,8 @@ A modern web application for uploading CSV files and creating interactive line c
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/Krowy123/csv-graph-visualizer.git
-cd csv-graph-visualizer
+git clone <repository-url>
+cd csv-graph-app
 ```
 
 2. Install dependencies:
@@ -42,12 +45,13 @@ npm run dev
 
 ## 📊 How to Use
 
-1. **Upload CSV File**: Drag and drop your CSV file or click to select
+1. **Upload CSV File**: Drag and drop your CSV file or click to select (supports both US and European formats)
 2. **Select X-Axis**: Choose a date column for the X-axis
 3. **Select Y-Axis**: Pick one or more numeric columns for the Y-axis
 4. **Filter Dates** (Optional): Set a custom date range to focus on specific periods
 5. **View Chart**: Your interactive line chart will appear automatically
-6. **Export** (Optional): Download your chart as a PNG image
+6. **Hover for Precision**: Move your mouse over the chart to see the crosshair cursor and exact values
+7. **Export** (Optional): Download your chart as a PNG image
 
 ## 📋 CSV Format Requirements
 
@@ -56,15 +60,27 @@ Your CSV file should have:
 - **Date column**: At least one column with dates in formats like:
   - `2024-01-01` (ISO format)
   - `01/01/2024` (US format)  
-  - `01.01.2024` (European format)
+  - `01.01.2024 14:30` (European format with time)
+  - `01.11.2023 00:00` (European format)
 - **Numeric columns**: One or more columns with numeric data
+- **Format Support**: 
+  - **US/International**: Comma separators, dot decimals (`12,345.67`)
+  - **European**: Semicolon separators, comma decimals (`12345,67`)
 
-### Example CSV:
+### Example CSV (US Format):
 ```csv
 date,revenue,users,orders
-2024-01-01,12500,450,89
-2024-01-02,13200,467,92
-2024-01-03,11800,423,85
+2024-01-01,12500.50,450,89
+2024-01-02,13200.75,467,92
+2024-01-03,11800.25,423,85
+```
+
+### Example CSV (European Format):
+```csv
+date;revenue;users;orders
+01.01.2024;12500,50;450;89
+02.01.2024;13200,75;467;92
+03.01.2024;11800,25;423;85
 ```
 
 ## 🛠️ Built With
@@ -128,6 +144,9 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ## 🎯 Roadmap
 
+- [x] **European CSV Format Support** - Semicolon separators and comma decimals ✅
+- [x] **Enhanced Chart Visualization** - Professional styling and precision ✅ 
+- [x] **Crosshair Cursor** - Vertical line for precise data reading ✅
 - [ ] Support for additional chart types (bar, area, scatter)
 - [ ] Data export functionality (filtered CSV, JSON)
 - [ ] Multiple file comparison
