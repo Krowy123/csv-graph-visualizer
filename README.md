@@ -11,7 +11,7 @@ A modern web application for uploading CSV files and creating interactive line c
 - **📅 Date Range Filtering**: Filter data by custom date ranges with intuitive controls
 - **📈 Multiple Data Series**: Plot multiple numeric columns on the same chart
 - **🌍 European CSV Support**: Full support for semicolon separators and comma decimals
-- **💾 Export Charts**: Download charts as high-quality PNG images
+- **💾 High-Quality Export**: Download charts as crisp, high-resolution PNG images (3x scale)
 - **📱 Responsive Design**: Works on desktop, tablet, and mobile devices
 - **⚡ Real-time Updates**: Charts update instantly as you change selections
 - **📊 Enhanced Precision**: Display exact decimal values without rounding
@@ -51,7 +51,7 @@ npm run dev
 4. **Filter Dates** (Optional): Set a custom date range to focus on specific periods
 5. **View Chart**: Your interactive line chart will appear automatically
 6. **Hover for Precision**: Move your mouse over the chart to see the crosshair cursor and exact values
-7. **Export** (Optional): Download your chart as a PNG image
+7. **Export** (Optional): Download your chart as a high-resolution PNG image (perfect for presentations)
 
 ## 📋 CSV Format Requirements
 
@@ -147,6 +147,7 @@ This project is open source and available under the [MIT License](LICENSE).
 - [x] **European CSV Format Support** - Semicolon separators and comma decimals ✅
 - [x] **Enhanced Chart Visualization** - Professional styling and precision ✅ 
 - [x] **Crosshair Cursor** - Vertical line for precise data reading ✅
+- [x] **High-Resolution PNG Export** - 3x scale crisp image downloads ✅
 - [ ] Support for additional chart types (bar, area, scatter)
 - [ ] Data export functionality (filtered CSV, JSON)
 - [ ] Multiple file comparison
